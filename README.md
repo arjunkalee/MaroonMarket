@@ -1,6 +1,6 @@
-# TAMU Prediction Markets
+# MaroonMarket
 
-A prediction market platform for Texas A&M campus events, inspired by Kalshi and Polymarket.
+Kalshi for TAMU — a prediction market platform for Texas A&M campus events.
 
 ## Features
 
@@ -40,8 +40,9 @@ npm run dev
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Styling
 - **Lucide React** - Icons
+- **Expo** - Mobile app in `mobile/`
 
-## Project Structure (production-ready)
+## Project Structure
 
 ```
 ├── app/
@@ -52,47 +53,13 @@ npm run dev
 │   └── globals.css        # Global styles
 ├── components/
 │   ├── layout/            # App shell
-│   │   ├── Navbar.tsx
-│   │   └── ThemeProvider.tsx
 │   ├── markets/           # Market UI
-│   │   ├── MarketCard.tsx
-│   │   ├── MarketFilters.tsx
-│   │   ├── MarketSwipeCard.tsx   # Swipe card for Discover
-│   │   ├── SwipeDeck.tsx        # Swipe deck + buttons
-│   │   └── ViewModeToggle.tsx   # Grid / Discover toggle
 │   └── ui/
-│       └── ThemeToggle.tsx
-├── hooks/
-│   └── useSwipe.ts        # Swipe gesture (touch + pointer)
+├── mobile/                # Expo React Native app
 ├── lib/
-│   ├── constants.ts       # App name, categories, etc.
-│   ├── mockData.ts        # Mock market data
-│   └── utils.ts           # formatMarketDate, formatVolume
 ├── types/
-│   └── market.ts          # Market types
 └── ...
 ```
-
-## Features Overview
-
-### Market Listings
-- **Grid** and **Discover (swipe)** modes — toggle at the top of the home page
-- In Discover: swipe left to skip, swipe right (or tap ♥) to open that market
-- Category filtering (Sports, Campus, Academics, Events)
-- Search functionality
-- Market cards showing YES/NO prices, volume, and end dates
-
-### Market Detail Page
-- Full market information
-- Large YES/NO price display
-- Trading panel with order placement
-- Market statistics (volume, liquidity, end date)
-
-### Create Market
-- Form to create new prediction markets
-- Category selection
-- Resolution date picker
-- Market rules and guidelines
 
 ## Future Enhancements
 
@@ -102,7 +69,6 @@ npm run dev
 - Portfolio tracking
 - Market resolution system
 - Backend API integration
-- Payment processing
 
 ## License
 

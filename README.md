@@ -34,13 +34,21 @@ npm run dev
 
 3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
+## Deploy & install on iPhone (Add to Home Screen)
+
+1. Push to GitHub and deploy on [Vercel](https://vercel.com) (imports `MaroonMarket` repo).
+2. On your iPhone, open the **https://** Vercel URL in **Safari**.
+3. Tap **Share** → **Add to Home Screen**.
+
+The app runs as a standalone web app (PWA) — no Expo Go required.
+
 ## Tech Stack
 
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Type safety
 - **Tailwind CSS** - Styling
 - **Lucide React** - Icons
-- **Expo** - Mobile app in `mobile/`
+- **Vercel** - Hosting
 
 ## Project Structure
 
@@ -55,7 +63,7 @@ npm run dev
 │   ├── layout/            # App shell
 │   ├── markets/           # Market UI
 │   └── ui/
-├── mobile/                # Expo React Native app
+├── public/manifest.json   # PWA manifest (Add to Home Screen)
 ├── lib/
 ├── types/
 └── ...

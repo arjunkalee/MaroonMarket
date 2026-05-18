@@ -36,5 +36,5 @@
     "types/**/*.ts",
     "types/**/*.tsx"
   ],
-  "exclude": ["node_modules", "mobile"]
+  "exclude": ["node_modules"]
 }

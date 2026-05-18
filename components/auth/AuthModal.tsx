@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { APP_NAME } from "@/lib/constants";
@@ -10,14 +10,35 @@ type Mode = "signup" | "login";
 const USERNAME_RE = /^[a-zA-Z0-9_]{3,20}$/;
 
 function formatAuthError(message: string) {
-  if (message === "Failed to fetch") {
-    return "Cannot reach Supabase. Check .env.local URL/key, restart npm run dev, and confirm your project is active.";
+  const lower = message.toLowerCase();
+  if (
+    message === "Failed to fetch" ||
+    lower.includes("load failed") ||
+    lower.includes("network")
+  ) {
+    return "Cannot reach Supabase. On Vercel: add env vars and Redeploy. On laptop: check .env.local and restart npm run dev.";
+  }
+  if (lower.includes("email not confirmed")) {
+    return "Confirm your email first, or turn off “Confirm email” in Supabase → Authentication → Providers → Email.";
   }
   return message;
 }
 
+function getConfigError(): string | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key || !url.includes("supabase.co")) {
+    return "Supabase is not configured for this deploy. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY on Vercel, then Redeploy.";
+  }
+  return null;
+}
+
 export default function AuthModal() {
-  const supabase = createClient();
+  const configError = useMemo(() => getConfigError(), []);
+  const supabase = useMemo(
+    () => (configError ? null : createClient()),
+    [configError]
+  );
   const [mode, setMode] = useState<Mode>("signup");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -26,6 +47,10 @@ export default function AuthModal() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (configError) setError(configError);
+  }, [configError]);
 
   const resetForm = () => {
     setError(null);
@@ -54,24 +79,30 @@ export default function AuthModal() {
       return;
     }
 
-    setSubmitting(true);
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: {
-        data: {
-          username: username.trim(),
-          display_name: username.trim(),
-        },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (signUpError) {
-      setError(formatAuthError(signUpError.message));
-      setSubmitting(false);
+    if (!supabase) {
+      setError(configError);
       return;
     }
+
+    setSubmitting(true);
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: {
+            username: username.trim(),
+            display_name: username.trim(),
+          },
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (signUpError) {
+        setError(formatAuthError(signUpError.message));
+        setSubmitting(false);
+        return;
+      }
 
     if (data.user) {
       const { error: profileError } = await supabase
@@ -89,30 +120,48 @@ export default function AuthModal() {
       }
     }
 
-    if (data.session) {
-      setSubmitting(false);
-      return;
-    }
+      if (data.session) {
+        setSubmitting(false);
+        return;
+      }
 
-    setMessage(
-      "Account created. Check your email to confirm, then log in — or disable email confirmation in Supabase for instant access."
-    );
-    setSubmitting(false);
-    setMode("login");
+      setMessage(
+        "Account created. Check your email to confirm, then log in — or disable email confirmation in Supabase for instant access."
+      );
+      setSubmitting(false);
+      setMode("login");
+    } catch (err) {
+      setError(
+        formatAuthError(err instanceof Error ? err.message : "Load failed")
+      );
+      setSubmitting(false);
+    }
   };
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     resetForm();
+
+    if (!supabase) {
+      setError(configError);
+      return;
+    }
+
     setSubmitting(true);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-    if (signInError) {
-      setError(formatAuthError(signInError.message));
+      if (signInError) {
+        setError(formatAuthError(signInError.message));
+      }
+    } catch (err) {
+      setError(
+        formatAuthError(err instanceof Error ? err.message : "Load failed")
+      );
     }
     setSubmitting(false);
   };

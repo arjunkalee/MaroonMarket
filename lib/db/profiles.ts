@@ -43,16 +43,18 @@ export async function updateProfile(
   return data;
 }
 
-export async function getLeaderboard(
-  limit = 50
-): Promise<LeaderboardEntry[]> {
+export async function getLeaderboard(limit = 100): Promise<LeaderboardEntry[]> {
   const supabase = createClient();
   const { data, error } = await supabase
-    .from("leaderboard")
-    .select("*")
-    .order("rank", { ascending: true })
+    .from("profiles")
+    .select("id, username, display_name, avatar_url, balance, total_profit")
+    .order("balance", { ascending: false })
     .limit(limit);
 
   if (error) throw error;
-  return data ?? [];
+
+  return (data ?? []).map((row, index) => ({
+    ...row,
+    rank: index + 1,
+  }));
 }

@@ -2,18 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Plus, TrendingUp } from "lucide-react";
+import { LogOut, Plus, TrendingUp, Trophy } from "lucide-react";
+import { formatBalance } from "@/lib/utils";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { APP_NAME } from "@/lib/constants";
-
-function formatBalance(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -45,6 +38,17 @@ export default function Navbar() {
               }`}
             >
               Markets
+            </Link>
+            <Link
+              href="/leaderboard"
+              className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+                pathname === "/leaderboard"
+                  ? "text-maroon-600"
+                  : "text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-50"
+              }`}
+            >
+              <Trophy className="h-4 w-4" />
+              <span className="hidden sm:inline">Leaderboard</span>
             </Link>
             <Link
               href="/create"
